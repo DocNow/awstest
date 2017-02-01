@@ -24,6 +24,6 @@ Resources:
               S3Key:
                 Rules:
                   - Name: suffix
-                    Value: json
+                    Value: .json.gz
   Bucket1:
     Type: 'AWS::S3::Bucket'
