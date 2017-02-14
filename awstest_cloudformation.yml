@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Creates Docnow awstest elasticsearch on [Ubuntu Xenial]"
+Resources:
+  IndexTweets:
+  Type: "AWS::Lambda::Function"
+  Properties:
+   Handler: "index.handler"
+   Role: "arn:aws:iam::684197843106:role/lambda-s3-execution-role"
+   Code:
+     S3Bucket: docnow.awstestdemo.com
+     S3Key: 20170210-lambda-elasticsearch
+   Runtime: "python2.7"
+   CodeUri: .
+   Description: 'indexingTweets'
+   MemorySize: 1024
+   Timeout: 300
