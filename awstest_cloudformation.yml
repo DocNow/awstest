@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Creates Docnow awstest elasticsearch"
+Resources:
+  DocnowLambaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        -
+          PolicyName: "docnowlambda"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action: "*"
+                Resource: "*"
+  DocnowLambdaInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        -
+          Ref: "DocnowLambaRole"
+  IndexTweets:
+    Type: "AWS::Lambda::Function"
+    Description: "index tweets into elasticsearch"
+    Properties:
+      Code:
+        S3Bucket: "docnow.awstestdemo.com"
+        S3Key: "20170210-lambda-elasticsearch.zip"
+      Runtime: "python2.7"
+      Description: "indexingTweets"
+      MemorySize: 1024
+      Timeout: 300
+      Handler: "index.handler"
+      Role:
+        Fn::GetAtt:
+          - "DocnowLambaRole"
+          - "Arn"
