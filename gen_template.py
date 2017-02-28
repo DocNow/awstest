@@ -28,16 +28,17 @@ es_cluster_config = ElasticsearchClusterConfig(
     ZoneAwarenessEnabled=True,
     InstanceType=constants.ELASTICSEARCH_M3_MEDIUM,
     DedicatedMasterType=constants.ELASTICSEARCH_M3_MEDIUM,
-    DedicatedMasterCount=1
+    DedicatedMasterCount=2
     )
 ebs_options = EBSOptions(EBSEnabled=True,
                          Iops=0,
                          VolumeSize=20,
                          VolumeType="gp2"
-    )
+                         )
 domain = Domain(
     'ElasticsearchDomain',
     DomainName='testelasticsearchdomain',
+    ElasticsearchVersion='5.1',
     ElasticsearchClusterConfig=es_cluster_config,
     EBSOptions=ebs_options,
     SnapshotOptions=SnapshotOptions(AutomatedSnapshotStartHour=0),
