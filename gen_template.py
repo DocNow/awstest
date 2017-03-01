@@ -4,12 +4,17 @@
 Based on template-generating examples in troposphere repo.
 """
 
+import configparser
+
 from troposphere import Output, Ref, Template, constants
 from troposphere.elasticsearch import Domain, EBSOptions
 from troposphere.elasticsearch import ElasticsearchClusterConfig
 from troposphere.elasticsearch import SnapshotOptions
 from troposphere.s3 import Bucket, PublicRead
 
+
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 t = Template()
 t.add_description('An S3 bucket and an ES domain')
@@ -22,13 +27,14 @@ o = Output("S3Bucket",
 t.add_output(o)
 
 # ES domain
+config_es = config['elasticsearch']
 es_cluster_config = ElasticsearchClusterConfig(
-    DedicatedMasterEnabled=True,
-    InstanceCount=2,
-    ZoneAwarenessEnabled=True,
+    DedicatedMasterEnabled=config_es.getboolean('DedicatedMasterEnabled'),
+    DedicatedMasterCount=config_es.getint('DedicatedMasterCount'),
+    InstanceCount=config_es.getint('InstanceCount'),
     InstanceType=constants.ELASTICSEARCH_M3_MEDIUM,
     DedicatedMasterType=constants.ELASTICSEARCH_M3_MEDIUM,
-    DedicatedMasterCount=2
+    ZoneAwarenessEnabled=config_es.getboolean('ZoneAwarenessEnabled')
     )
 ebs_options = EBSOptions(EBSEnabled=True,
                          Iops=0,

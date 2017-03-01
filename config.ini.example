@@ -1,0 +1,6 @@
+[elasticsearch]
+ElasticsearchVersion = 5.1
+DedicatedMasterEnabled = yes
+DedicatedMasterCount = 2
+InstanceCount = 2
+ZoneAwarenessEnabled = yes
