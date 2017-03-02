@@ -6,11 +6,12 @@ Based on template-generating examples in troposphere repo.
 
 import configparser
 
-from troposphere import Output, Ref, Template, constants
+from troposphere import Output, Ref, Template, constants, Parameter
 from troposphere.elasticsearch import Domain, EBSOptions
 from troposphere.elasticsearch import ElasticsearchClusterConfig
 from troposphere.elasticsearch import SnapshotOptions
 from troposphere.s3 import Bucket, PublicRead
+import troposphere.ec2 as ec2
 
 
 config = configparser.ConfigParser()
@@ -18,6 +19,27 @@ config.read('config.ini')
 
 t = Template()
 t.add_description('An S3 bucket and an ES domain')
+
+# keypair for access
+keypair = t.add_parameter(Parameter(
+    "KeyPair",
+    Type="String",
+    Description="The name of the keypair to use for SSH access",
+))
+
+# Create a security group
+sg = ec2.SecurityGroup('MySecurityGroup')
+sg.GroupDescription = "Allow access to MyInstance"
+sg.SecurityGroupIngress = [
+    ec2.SecurityGroupRule(
+        IpProtocol="tcp",
+        FromPort="22",
+        ToPort="22",
+        CidrIp="0.0.0.0/0",
+    )]
+
+# Add security group to template
+t.add_resource(sg)
 
 # S3 bucket
 s3bucket = t.add_resource(Bucket("S3Bucket", AccessControl=PublicRead,))
