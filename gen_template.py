@@ -6,7 +6,8 @@ Based on template-generating examples in troposphere repo.
 
 import configparser
 
-from troposphere import Output, Ref, Template, constants, Parameter
+from awacs import aws, sts
+from troposphere import GetAtt, Output, Ref, Template, constants, Parameter, awslambda, iam
 from troposphere.elasticsearch import Domain, EBSOptions
 from troposphere.elasticsearch import ElasticsearchClusterConfig
 from troposphere.elasticsearch import SnapshotOptions
@@ -18,7 +19,60 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 t = Template()
-t.add_description('An S3 bucket and an ES domain')
+t.add_description('An S3 bucket, lambda and an ES domain')
+
+# lambda
+param_lambda_file_name = t.add_parameter(Parameter(
+    "LambdaFileName",
+    Type="String",
+    Description="Name of the ZIP file with lambda function sources inside S3 bucket"
+))
+
+param_lambda_source_bucket = t.add_parameter(Parameter(
+    "LambdaSourceBucket",
+    Type="String",
+    Description="Name of the ZIP file with lambda function sources inside S3 bucket"
+))
+
+lambda_role = t.add_resource(iam.Role("DocnowLambaRole",
+    AssumeRolePolicyDocument=aws.Policy(
+        Statement=[
+            aws.Statement(
+                Effect=aws.Allow,
+                Action=[sts.AssumeRole],
+                Principal=aws.Principal(
+                    "Service", ["lambda.amazonaws.com"]
+                )
+            )
+        ]
+    ),
+    Policies=[
+        iam.Policy(
+            PolicyName="LambdaPolicy",
+            PolicyDocument=aws.Policy(
+                Statement=[
+                    aws.Statement(
+                        Effect=aws.Allow,
+                        Action=[aws.Action("*")],
+                        Resource=["arn:aws:*"]
+                    )
+                ]
+            )
+        )
+    ]
+))
+
+lambda_function = t.add_resource(awslambda.Function("Lambda",
+    Code=awslambda.Code(
+        S3Bucket=Ref(param_lambda_source_bucket),
+        S3Key=Ref(param_lambda_file_name)
+    ),
+    Handler="lambda.lambda_handler",
+    MemorySize=128,
+    Role=GetAtt(lambda_role, "Arn"),
+    Runtime="python2.7",
+    Timeout=30
+))
 
 # keypair for access
 keypair = t.add_parameter(Parameter(
