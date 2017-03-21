@@ -67,11 +67,11 @@ lambda_function = t.add_resource(awslambda.Function("Lambda",
         S3Bucket=Ref(param_lambda_source_bucket),
         S3Key=Ref(param_lambda_file_name)
     ),
-    Handler="lambda.lambda_handler",
+    Handler="index.handler",
     MemorySize=128,
     Role=GetAtt(lambda_role, "Arn"),
     Runtime="python2.7",
-    Timeout=30
+    Timeout=300
 ))
 
 # keypair for access
