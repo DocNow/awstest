@@ -8,6 +8,10 @@ from troposphere.s3 import Bucket, PublicRead
 from troposphere.elasticsearch import Domain, EBSOptions
 from troposphere.elasticsearch import ElasticsearchClusterConfig
 from troposphere.elasticsearch import SnapshotOptions
+from troposphere.iam import Role, InstanceProfile
+
+import Allow, Statement, Principal, Policy
+import AssumeRole
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -57,6 +61,19 @@ domain = Domain(
     AdvancedOptions={"rest.action.multi.allow_explicit_index": "true"}
     )
 es_domain = docnow_template.add_resource(domain)
+
+docnowlambdaRole = docnow_template(Role(
+    "DocnowLambaRole",
+    AssumeRolePolicyDocument=Policy(
+        Statement=[
+            Statement(
+                Effect=Allow,
+                Action=[AssumeRole],
+                Principal=Principal("Service", ["lambda.amazonaws.com"]
+            )
+        ]
+    )
+))
 
 
 print(docnow_template.to_json())
