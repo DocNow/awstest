@@ -6,6 +6,11 @@
             "Default" : "docnow-demo-bucket",
             "Description" : "The AWS dns name for your bucket",
             "Type" : "String"
+        },
+        "ElasticSearchDomain" : {
+            "Default" : "testelasticsearchdomain",
+            "Description" : "The name of your elasticsearch domain",
+            "Type" : "String"
         }
     },
     "Resources" : {
@@ -15,7 +20,46 @@
                 "AccessControl" : "PublicRead",
                 "BucketName" : { "Ref" : "DocnowBucketName" }
             }
+        },
+        "ElasticsearchDomain" : {
+            "Type" : "AWS::Elasticsearch::Domain",
+            "Properties" : {
+                "AccessPolicies" : {
+                    "Statement" : [
+                        {
+                            "Action" : "es:*",
+                            "Effect" : "Allow",
+                            "Principal" : {
+                                "AWS" : "*"
+                            },
+                            "Resource" : "*"
+                        }
+                    ],
+                    "Version" : "2012-10-17"
+                },
+                "AdvancedOptions" : {
+                    "rest.action.multi.allow_explicit_index": "true"
+                },
+                "DomainName" : { "Ref" : "ElasticSearchDomain" },
+                "EBSOptions" : {
+                    "EBSEnabled" : "true",
+                    "Iops": 0,
+                    "VolumeSize" : 20,
+                    "VolumeType" : "gp2"
+                },
+                "ElasticsearchClusterConfig" : {
+                    "DedicatedMasterCount" : 2,
+                    "DedicatedMasterEnabled" : "true",
+                    "DedicatedMasterType" : "m3.medium.elasticsearch",
+                    "InstanceCount" : 2,
+                    "InstanceType" : "m3.medium.elasticsearch",
+                    "ZoneAwarenessEnabled" : "true"
+                },
+                "ElasticsearchVersion" : "5.1",
+                "SnapshotOptions" : {
+                    "AutomatedSnapshotStartHour" : 0
+                }
+            },
         }
     }
 }
-
