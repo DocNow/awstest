@@ -8,8 +8,13 @@
             "Type" : "String"
         },
         "ElasticSearchDomain" : {
-            "Default" : "testelasticsearchdomain",
+            "Default" : "docnowelasticsearchdomain",
             "Description" : "The name of your elasticsearch domain",
+            "Type" : "String"
+        },
+        "ElasticSearchMachineSize" : {
+            "Default" : "m4.large.elasticsearch",
+            "Description" : "Size of your elasticsearch machine",
             "Type" : "String"
         }
     },
@@ -50,9 +55,9 @@
                 "ElasticsearchClusterConfig" : {
                     "DedicatedMasterCount" : 2,
                     "DedicatedMasterEnabled" : "true",
-                    "DedicatedMasterType" : "m3.medium.elasticsearch",
+                    "DedicatedMasterType" : { "Ref" : "ElasticSearchMachineSize" },
                     "InstanceCount" : 2,
-                    "InstanceType" : "m3.medium.elasticsearch",
+                    "InstanceType" : { "Ref" : "ElasticSearchMachineSize" },
                     "ZoneAwarenessEnabled" : "true"
                 },
                 "ElasticsearchVersion" : "5.1",
