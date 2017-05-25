@@ -21,27 +21,35 @@
     "Resources" : {
         "DocnowLamdaRole" : {
             "Type" : "AWS::IAM::Role",
-            "Properties": {
+            "Properties" : {
                 "AssumeRolePolicyDocument": {
                     "Version" : "2012-10-17",
-                    "Statement": [ {
-                        "Effect": "Allow",
-                        "Principal": {
-                            "Service": [ "lambda.amazonaws.com" ]
+                    "Statement" : [ {
+                        "Effect" : "Allow",
+                        "Principal" : {
+                            "Service" : [ "lambda.amazonaws.com" ]
                         },
-                        "Action": [ "sts:AssumeRole" ]
+                        "Action" : [ "sts:AssumeRole" ]
                     } ]
                 },
-                "Policies": [ {
-                    "PolicyName": "DocnowLamdaPolicy",
-                    "PolicyDocument": {
+                "Policies" : [ {
+                    "PolicyName" : "DocnowLamdaPolicy",
+                    "PolicyDocument" : {
                         "Version" : "2012-10-17",
-                        "Statement": [ {
-                            "Effect": "Allow",
-                            "Action": "*",
-                            "Resource": "*"
+                        "Statement" : [ {
+                            "Effect" : "Allow",
+                            "Action" : "*",
+                            "Resource" : "*"
                         } ]
                     }
+                } ]
+            }
+        },
+        "DocnowLambdaProfile" : {
+            "Type" : "AWS::IAM::InstanceProfile",
+            "Properties" : {
+                "Roles" : [ {
+                    "Ref" : "DocnowLamdaRole"
                 } ]
             }
         },
