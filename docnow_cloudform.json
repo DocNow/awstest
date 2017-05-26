@@ -2,11 +2,6 @@
     "AWSTemplateFormatVersion" : "2010-09-09",
     "Description" : "CloudFormation template to create a lambda function that listens to events on AWS S3 and writes to AWS Elastic. Use of this template will cost you money.",
     "Parameters" : {
-        "DocnowBucketName" : {
-            "Default" : "docnow-demo-bucket",
-            "Description" : "The AWS dns name for your bucket",
-            "Type" : "String"
-        },
         "ElasticSearchDomain" : {
             "Default" : "docnowelasticsearchdomain",
             "Description" : "The name of your elasticsearch domain",
@@ -53,11 +48,16 @@
                 } ]
             }
         },
-        "DocnowBucket" : {
+        "DocnowLambdaBucket" : {
             "Type" : "AWS::S3::Bucket",
             "Properties" : {
-                "AccessControl" : "PublicRead",
-                "BucketName" : { "Ref" : "DocnowBucketName" }
+                "AccessControl" : "PublicRead"
+            }
+        },
+        "DocnowTweetBucket" : {
+            "Type" : "AWS::S3::Bucket",
+            "Properties" : {
+                "AccessControl" : "BucketOwnerFullControl"
             }
         },
         "ElasticsearchDomain" : {
