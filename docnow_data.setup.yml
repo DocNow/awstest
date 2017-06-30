@@ -1,0 +1,33 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - aws_credentials.yml
+
+  tasks:
+  - name: create the docnow bucket
+    s3_bucket:
+      name: docnowcloudformbucket
+      aws_access_key: '{{ aws_access_key }}'
+      aws_secret_key: '{{ aws_secret_key }}'
+
+  - name: create the tweet bucket
+    s3_bucket:
+      name: docnowtweetbucket
+      aws_access_key: '{{ aws_access_key }}'
+      aws_secret_key: '{{ aws_secret_key }}'
+
+  - name: put lambda file in s3 bucket
+    s3:
+      bucket: docnowcloudformbucket
+      object: indexTweets.zip
+      mode: put
+      src: IndexTweets.zip
+      permission: public-read
+
+  - name: launch cloudformation
+    cloudformation:
+      stack_name: 'docnows3elasticdemo'
+      state: present
+      template: 'docnow_cloudform.json'
