@@ -1,0 +1,103 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create a lambda function that listens to events
+  on AWS S3 and writes to AWS Elastic. Use of this template will cost you money.
+Parameters:
+  DocnowLambdaCodeBucket:
+    Default: docnow-lambda-bucket
+    Description: S3 Bucket containing Lambda deployment packages
+    Type: String
+  ElasticSearchDomain:
+    Default: docnowelasticsearchdomain
+    Description: The name of your elasticsearch domain
+    Type: String
+  ElasticSearchMachineSize:
+    Default: m4.large.elasticsearch
+    Description: Size of your elasticsearch machine
+    Type: String
+Resources:
+  DocnowLamdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Policies:
+      - PolicyName: DocnowLamdaPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: "*"
+            Resource: "*"
+  DocnowLambdaProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+      - Ref: DocnowLamdaRole
+  DocnowLambdaBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Join:
+        - "-"
+        - - Ref: DocnowLambdaCodeBucket
+          - Ref: AWS::AccountId
+          - files
+  DocnowTweetBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: BucketOwnerFullControl
+  ElasticsearchDomain:
+    Type: AWS::Elasticsearch::Domain
+    Properties:
+      AccessPolicies:
+        Statement:
+        - Action: es:*
+          Effect: Allow
+          Principal:
+            AWS: "*"
+          Resource: "*"
+        Version: '2012-10-17'
+      AdvancedOptions:
+        rest.action.multi.allow_explicit_index: 'true'
+      DomainName:
+        Ref: ElasticSearchDomain
+      EBSOptions:
+        EBSEnabled: 'true'
+        Iops: 0
+        VolumeSize: 20
+        VolumeType: gp2
+      ElasticsearchClusterConfig:
+        DedicatedMasterCount: 2
+        DedicatedMasterEnabled: 'true'
+        DedicatedMasterType:
+          Ref: ElasticSearchMachineSize
+        InstanceCount: 2
+        InstanceType:
+          Ref: ElasticSearchMachineSize
+        ZoneAwarenessEnabled: 'true'
+      ElasticsearchVersion: '5.1'
+      SnapshotOptions:
+        AutomatedSnapshotStartHour: 0
+  DocnowLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: DocnowLambdaBucket
+      Description: Docnow Tweet Processor
+      Handler: IndexTweets.handler
+      Role:
+        Fn::GetAtt:
+        - DocnowLamdaRole
+        - Arn
+      Runtime: python2.7
+      MemorySize: 128
+      Timeout: 3
