@@ -25,6 +25,8 @@
       mode: put
       src: IndexTweets.zip
       permission: public-read
+      aws_access_key: '{{ aws_access_key }}'
+      aws_secret_key: '{{ aws_secret_key }}'
 
   - name: launch cloudformation
     cloudformation:
