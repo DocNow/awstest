@@ -36,3 +36,17 @@
       region: '{{ awsregion }}'
       aws_access_key: '{{ aws_access_key }}'
       aws_secret_key: '{{ aws_secret_key }}'
+
+  - name: create lambda function
+    lambda:
+      name: 'docnowlambdafunction'
+      state: present
+      aws_access_key: '{{ aws_access_key }}'
+      aws_secret_key: '{{ aws_secret_key }}'
+      #s3_bucket: 'docnowcloudformbucket'
+      zip_file: 'IndexTweets.zip'
+      runtime: 'python2.7'
+      #s3_key: 'IndexTweets.zip'
+      region: '{{ awsregion }}'
+      role: 'arn:aws:iam::* need to fix this'
+      handler: 'IndexTweets.handler'
