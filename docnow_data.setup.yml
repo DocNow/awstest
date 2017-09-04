@@ -18,13 +18,22 @@
       aws_access_key: '{{ aws_access_key }}'
       aws_secret_key: '{{ aws_secret_key }}'
 
+  - name: create a policy document
+    iam_policy:
+      iam_type: role
+      iam_name: docnow
+      policy_name: docnowlambdapolicy
+      state: present
+      aws_access_key: '{{ aws_access_key }}'
+      aws_secret_key: '{{ aws_secret_key }}'
+      policy_document: policy.json
+
   - name: create lambda role 
     iam_role:
-      name: docnowrole
-      assume_role_policy_document: "{{ lookup('file', 'policy.json') }}"
+      name: docnowlambdarole
       state: present
-      managed_policy:
-        - arn:aws:iam::aws:policy/PowerUserAccess
+      aws_access_key: '{{ aws_access_key }}'
+      aws_secret_key: '{{ aws_secret_key }}'
 
   - name: put lambda file in s3 bucket
     s3:
