@@ -3,3 +3,4 @@
 .DS_Store
 config.ini
 aws_credentials.yml
+*.retry
